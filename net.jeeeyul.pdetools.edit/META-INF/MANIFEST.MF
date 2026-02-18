@@ -14,7 +14,7 @@ Ant-Version: Apache Ant 1.9.2
 Export-Package: net.jeeeyul.pdetools.model,net.jeeeyul.pdetools.model.pd
  etools.provider
 Bundle-Name: %pluginName
-Bundle-Version: 1.2.21.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-ClassPath: .
 Bundle-Localization: plugin
 Bundle-Activator: net.jeeeyul.pdetools.model.PdetoolsEditPlugin$Implemen

@@ -29,7 +29,7 @@ Export-Package: net.jeeeyul.pdetools,net.jeeeyul.pdetools.biv,net.jeeeyu
  ot.editor,net.jeeeyul.pdetools.snapshot.handlers,net.jeeeyul.pdetools.w
  slauncher
 Bundle-Name: PDE-Tools
-Bundle-Version: 1.2.21.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-ClassPath: .,lib/org.eclipse.nebula.widgets.compositetable_1.0.0.
  201206270822.jar,lib/org.eclipse.nebula.widgets.gallery_0.5.3.201206270
  822.jar,lib/aopalliance.jar,lib/guice-3.0.jar
