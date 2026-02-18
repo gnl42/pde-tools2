@@ -45,7 +45,7 @@ eclipse -clearPersistedState
 ```
 
 ## Clipboard History
-Just press <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> instead of <kbd>Control</kbd> + <kbd>V</kbd>, then you can paste contents from history of Clipboard.
+Just press <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> (or <kbd>Control</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd>) instead of <kbd>Control</kbd> + <kbd>V</kbd>, then you can paste contents from history of Clipboard.
 
 ![screenshot](https://raw.github.com/jeeeyul/pde-tools/master/net.jeeeyul.pdetools.resource/clipboard-history-paste.png)
 

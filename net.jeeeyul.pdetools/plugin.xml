@@ -893,6 +893,13 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M2+V">
       </key>
+      <!-- Alternate keybinding: CTRL+ALT+V -->
+      <key
+            commandId="net.jeeeyul.pdetools.clipboard.pasteHistory"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+V">
+      </key>
       <key
             commandId="net.jeeeyul.pdetools.snapshot.screenshot"
             contextId="org.eclipse.ui.contexts.window"
