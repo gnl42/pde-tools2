@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.ui,org.eclipse.core.runtime,org.eclipse.core
  version="2.2.7",org.eclipse.xtend.lib,com.google.inject;bundle-version=
  "3.0.0"
 Bundle-ManifestVersion: 2
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: jeeeyul@gmail.com
 Export-Package: net.jeeeyul.pdetools,net.jeeeyul.pdetools.biv,net.jeeeyu

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Parent aggregator POM for Tycho pomless build of pde-tools -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.jeeeyul</groupId>
+    <artifactId>pde-tools-aggregator</artifactId>
+    <version>1.2.21-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>pde-tools Tycho Aggregator</name>
+
+    <properties>
+        <tycho.version>5.0.2</tycho.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Use Java 21 consistent with MANIFESTs -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+    </properties>
+
+    <modules>
+        <module>net.jeeeyul.pdetools.target</module>
+        <module>net.jeeeyul.pdetools</module>
+        <module>net.jeeeyul.pdetools.capability</module>
+        <module>net.jeeeyul.pdetools.edit</module>
+        <module>net.jeeeyul.pdetools.model</module>
+        <module>net.jeeeyul.pdetools.feature</module>
+        <module>net.jeeeyul.pdetools.p2</module>
+    </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.eclipse.tycho</groupId>
+                    <artifactId>tycho-compiler-plugin</artifactId>
+                    <version>${tycho.version}</version>
+                    <configuration>
+                        <release>${maven.compiler.release}</release>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.tycho</groupId>
+                    <artifactId>tycho-maven-plugin</artifactId>
+                    <version>${tycho.version}</version>
+                    <extensions>true</extensions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>3.6.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.eclipse.xtext</groupId>
+                    <artifactId>xtend-maven-plugin</artifactId>
+                    <version>2.41.0</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <outputDirectory>xtend-gen</outputDirectory>
+                    </configuration>
+                </plugin>
+
+                <!-- Configure Tycho target platform to use new .target file -->
+                <plugin>
+                    <groupId>org.eclipse.tycho</groupId>
+                    <artifactId>target-platform-configuration</artifactId>
+                    <version>${tycho.version}</version>
+                    <configuration>
+                        <target>
+                            <artifact>
+                                <groupId>net.jeeeyul</groupId>
+                                <artifactId>net.jeeeyul.pdetools.target</artifactId>
+                                <version>1.2.21-SNAPSHOT</version>
+                            </artifact>
+                        </target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+            </plugin>
+            <!-- Apply target-platform-configuration at build time -->
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>target-platform-configuration</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
