@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor
 import org.eclipse.core.runtime.OperationCanceledException
 import org.eclipse.core.runtime.Path
 import org.eclipse.core.runtime.Platform
-import org.eclipse.core.runtime.SubProgressMonitor
+import org.eclipse.core.runtime.SubMonitor
 import org.eclipse.emf.common.util.URI
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl
 import org.eclipse.ltk.core.refactoring.Change
@@ -25,108 +25,108 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext
 import org.eclipse.ltk.core.refactoring.participants.RenameParticipant
 
 class RenamePaletteEntry extends RenameParticipant {
-	ICGConfiguration config
-	IResource resource
-	List<Change> result
-	
-	new(){
-	}
+  ICGConfiguration config
+  IResource resource
+  List<Change> result
 
-	override checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
-		return null
-	}
+  new(){
+  }
 
-	override createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		var workAmount = 10000
-		pm.beginTask("Update Shared Image References", workAmount)
-		result = newArrayList()
-		var palette = loadPreviousPaletteModel()
-		if(palette === null){
-			println("이전 팔레트를 찾지 못해 리팩토링을 취소함")
-			return null
-		}
-		
-		var newPalette = createNewPaletteModel()
-		var deltaGenerator = new PaletteModelDeltaGenerator();
-		var diffs = deltaGenerator.compare(palette, newPalette)
-		
-		var eachWork = if(diffs.size > 0) 
-				workAmount / diffs.size 
-			else 1
-		
-		for(eachDelta : diffs){
-			if(eachDelta.refactorTarget){
-				try{
-					var javaRefactor = new JavaRefactor(eachDelta.before.resource.project)
-					var desc = javaRefactor.createDescriptor(eachDelta)
-					var refactor = desc.createRefactoring(RefactoringStatus::createFatalErrorStatus("Error"));
-					var status = refactor.checkAllConditions(new SubProgressMonitor(pm, eachWork/2))
-					if(!status.hasFatalError){
-						var change = refactor.createChange(new SubProgressMonitor(pm, eachWork/2))
-						result += change
-					}
-					else{
-						pm.worked(eachWork / 2)
-					}
-					
-				}catch(Exception e){
-					e.printStackTrace()
-				}
-			}
-		}
-		
-		pm.done
-		
-		if(!result.empty){
-			return new CompositeChange("Update Shared Image Java Referernces", result)
-		}
-		return null
-	} 
+  override checkConditions(IProgressMonitor pm, CheckConditionsContext context) throws OperationCanceledException {
+    return null
+  }
 
-	override getName() {
-		"Update Shared Image References"
-	}
+  override createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+    var workAmount = 10000
+    var subMonitor = SubMonitor.convert(pm, "Update Shared Image References", workAmount)
+    result = newArrayList()
+    var palette = loadPreviousPaletteModel()
+    if(palette === null){
+      println("Refactoring cancelled because previous palette not found")
+      return null
+    }
 
-	override protected initialize(Object element) {
-		resource = Platform::adapterManager.getAdapter(element, typeof(IResource)) as IResource
-		config = new ICGConfiguration(resource.project)
-		if(!config.monitoringFolder.fullPath.isPrefixOf(resource.fullPath)) {
-			return false
-		}
-		return true
-	}
+    var newPalette = createNewPaletteModel()
+    var deltaGenerator = new PaletteModelDeltaGenerator();
+    var diffs = deltaGenerator.compare(palette, newPalette)
 
-	def loadPreviousPaletteModel(){
-		try{
-			var uri = URI::createPlatformResourceURI(resource.project.fullPath.append('''.settings/«PDEToolsCore::getDefault.bundle.symbolicName».palette.xml''').toPortableString, true)
-			var resource = new XMLResourceImpl(uri)
-			resource.load(new HashMap)
-			resource.contents.get(0) as Palette
-		}catch(Exception e){
-			e.printStackTrace()
-			return null
-		}
-	}
+    var eachWork = if(diffs.size > 0)
+        workAmount / diffs.size
+      else 1
 
-	def createNewPaletteModel(){
-		var generator = new PaletteModelGenerator(config)
-		generator.nameProvider = [
-			if(it == resource) {
-				new Path(arguments.newName).removeFileExtension.lastSegment
-			}
-		]
-		generator.generate()
-	}
-	
-	def dispatch getResource(FieldNameOwner obj){
-		null
-	}
-	
-	def dispatch getResource(Palette palette){
-		palette.folder
-	}
-	
-	def dispatch getResource(ImageFile file){
-		file.file
-	}
+    for(eachDelta : diffs){
+      if(eachDelta.refactorTarget){
+        try{
+          var javaRefactor = new JavaRefactor(eachDelta.before.resource.project)
+          var desc = javaRefactor.createDescriptor(eachDelta)
+          var refactor = desc.createRefactoring(RefactoringStatus::createFatalErrorStatus("Error"));
+          var status = refactor.checkAllConditions(subMonitor.split(eachWork/2))
+          if(!status.hasFatalError){
+            var change = refactor.createChange(subMonitor.split(eachWork/2))
+            result += change
+          }
+          else{
+            pm.worked(eachWork / 2)
+          }
+
+        }catch(Exception e){
+          e.printStackTrace()
+        }
+      }
+    }
+
+    pm.done
+
+    if(!result.empty){
+      return new CompositeChange("Update Shared Image Java Referernces", result)
+    }
+    return null
+  }
+
+  override getName() {
+    "Update Shared Image References"
+  }
+
+  override protected initialize(Object element) {
+    resource = Platform::adapterManager.getAdapter(element, typeof(IResource)) as IResource
+    config = new ICGConfiguration(resource.project)
+    if(!config.monitoringFolder.fullPath.isPrefixOf(resource.fullPath)) {
+      return false
+    }
+    return true
+  }
+
+  def loadPreviousPaletteModel(){
+    try{
+      var uri = URI::createPlatformResourceURI(resource.project.fullPath.append('''.settings/«PDEToolsCore::getDefault.bundle.symbolicName».palette.xml''').toPortableString, true)
+      var resource = new XMLResourceImpl(uri)
+      resource.load(new HashMap)
+      resource.contents.get(0) as Palette
+    }catch(Exception e){
+      e.printStackTrace()
+      return null
+    }
+  }
+
+  def createNewPaletteModel(){
+    var generator = new PaletteModelGenerator(config)
+    generator.nameProvider = [
+      if(it == resource) {
+        new Path(arguments.newName).removeFileExtension.lastSegment
+      }
+    ]
+    generator.generate()
+  }
+
+  def dispatch getResource(FieldNameOwner obj){
+    null
+  }
+
+  def dispatch getResource(Palette palette){
+    palette.folder
+  }
+
+  def dispatch getResource(ImageFile file){
+    file.file
+  }
 }
