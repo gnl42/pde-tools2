@@ -17,6 +17,12 @@
         <!-- Use Java 21 consistent with MANIFESTs -->
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+
+        <!-- Required properties for releasing -->
+        <github-update-repo>git@github.com:gnl42/pde-tools2-update.git</github-update-repo>
+        <github-local-clone>${project.build.directory}/checkout</github-local-clone>
+        <releases-directory>${github-local-clone}/releases</releases-directory>
+        <current-release-directory>${releases-directory}/${qualifiedVersion}</current-release-directory>
     </properties>
 
     <modules>
@@ -51,22 +57,22 @@
                     <artifactId>build-helper-maven-plugin</artifactId>
                     <version>3.6.1</version>
                 </plugin>
-<!--                <plugin>-->
-<!--                    <groupId>org.eclipse.xtext</groupId>-->
-<!--                    <artifactId>xtend-maven-plugin</artifactId>-->
-<!--                    <version>2.41.0</version>-->
-<!--                    <executions>-->
-<!--                        <execution>-->
-<!--                            <goals>-->
-<!--                                <goal>compile</goal>-->
-<!--                                <goal>testCompile</goal>-->
-<!--                            </goals>-->
-<!--                        </execution>-->
-<!--                    </executions>-->
-<!--                    <configuration>-->
-<!--                        <outputDirectory>xtend-gen</outputDirectory>-->
-<!--                    </configuration>-->
-<!--                </plugin>-->
+                <!--                <plugin>-->
+                <!--                    <groupId>org.eclipse.xtext</groupId>-->
+                <!--                    <artifactId>xtend-maven-plugin</artifactId>-->
+                <!--                    <version>2.41.0</version>-->
+                <!--                    <executions>-->
+                <!--                        <execution>-->
+                <!--                            <goals>-->
+                <!--                                <goal>compile</goal>-->
+                <!--                                <goal>testCompile</goal>-->
+                <!--                            </goals>-->
+                <!--                        </execution>-->
+                <!--                    </executions>-->
+                <!--                    <configuration>-->
+                <!--                        <outputDirectory>xtend-gen</outputDirectory>-->
+                <!--                    </configuration>-->
+                <!--                </plugin>-->
 
                 <!-- Configure Tycho target platform to use new .target file -->
                 <plugin>
@@ -98,4 +104,33 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <!-- Activate this profile to perform the release to GitHub Pages -->
+            <id>release-composite</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <artifactId>maven-install-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>default-install</id>
+                                    <phase>none</phase>
+                                </execution>
+                            </executions>
+                        </plugin>
+                        <plugin>
+                            <artifactId>maven-deploy-plugin</artifactId>
+                            <configuration>
+                                <skip>true</skip>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
