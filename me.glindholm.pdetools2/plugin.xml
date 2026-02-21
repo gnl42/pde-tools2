@@ -1052,7 +1052,8 @@
             activate="false"
             categoryId="me.glindholm.pdetools2.java.proposal"
             class="me.glindholm.pdetools2.jdt.SematicsProposalComputer"
-            needsSortingAfterFiltering="false">
+            needsSortingAfterFiltering="false"
+            requiresUIThread="false">
          <partition
                type="__dftl_partition_content_type">
          </partition>
