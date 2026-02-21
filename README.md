@@ -47,11 +47,11 @@ eclipse -clearPersistedState
 ## Clipboard History
 Just press <kbd>Control</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> (or <kbd>Control</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd>) instead of <kbd>Control</kbd> + <kbd>V</kbd>, then you can paste contents from history of Clipboard.
 
-![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/net.jeeeyul.pdetools.resource/clipboard-history-paste.png)
+![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/me.glindholm.pdetools2.resource/clipboard-history-paste.png)
 
 It also provides view.
 
-![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/net.jeeeyul.pdetools.resource/clipboard-history-view.png)
+![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/me.glindholm.pdetools2.resource/clipboard-history-view.png)
 
 
 ## Icon Preview
@@ -59,28 +59,28 @@ Icon files are directly showed in Package Explorer or other navigators.
 
 It's fast and light-weight, content change sensitive.
 
-![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/net.jeeeyul.pdetools.resource/icon-preview.png)
+![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/me.glindholm.pdetools2.resource/icon-preview.png)
 
 ## Shared Image Generator
 PDE Tools generates Java constants for monitored folder. It also support structured folders as sub palettes.
 
-![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/net.jeeeyul.pdetools.resource/shared-image-generator.png)
+![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/me.glindholm.pdetools2.resource/shared-image-generator.png)
 
 1. Select a plugin project and press right mouse button.
 2. Select "Configure > Enable Shared Image Generator"
 3. That's all.
 
-![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/net.jeeeyul.pdetools.resource/sig-config.png)
+![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/me.glindholm.pdetools2.resource/sig-config.png)
 
 
 ## Bundle Image Navigator
 
-![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/net.jeeeyul.pdetools.resource/bundle-image-navigator.png)
+![screenshot](https://raw.githubusercontent.com/gnl42/pde-tools2/main/me.glindholm.pdetools2.resource/bundle-image-navigator.png)
 
 You can easily browse image files on plugins, and just drag and drop into your project to reuse icons.
 
 ## Crazy Outline
-![Crazy Outline](https://raw.githubusercontent.com/gnl42/pde-tools2/main/net.jeeeyul.pdetools.resource/crazy-outline.png)
+![Crazy Outline](https://raw.githubusercontent.com/gnl42/pde-tools2/main/me.glindholm.pdetools2.resource/crazy-outline.png)
 
 **Crazy Outline View** provides awesome way to navigate your source code.
 
@@ -99,7 +99,7 @@ Use Camera icon or <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>2</kbd> to take scre
 When you taking snapshot, press Command(or CTRL) then click to make a shot, then you will see, result image is rendered with Windows Aero effect with transparency. 
 
 ## Workspace Launcher
-![launcher](https://raw.githubusercontent.com/gnl42/pde-tools2/main/net.jeeeyul.pdetools.resource/release-note/1.1/workspace-launcher.png)
+![launcher](https://raw.githubusercontent.com/gnl42/pde-tools2/main/me.glindholm.pdetools2.resource/release-note/1.1/workspace-launcher.png)
 
 Now you can launch other workspace rather than switch. It is more useful for MacOSX users.
 

@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: me.glindholm.pdetools2.model
+Bundle-SymbolicName: me.glindholm.pdetools2.model;singleton:=true
+Require-Bundle: org.eclipse.core.runtime,org.eclipse.emf.ecore;visibilit
+ y:=reexport,org.eclipse.ui,org.eclipse.core.resources,org.eclipse.ui.vi
+ ews,org.eclipse.xtend.lib
+Bundle-ManifestVersion: 2
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: %providerName
+Export-Package: me.glindholm.pdetools2.model,
+ me.glindholm.pdetools2.model.pdetools,
+ me.glindholm.pdetools2.model.pdetools.impl,
+ me.glindholm.pdetools2.model.pdetools.util,
+ me.glindholm.pdetools2.shared
+Bundle-Name: %pluginName
+Bundle-Version: 1.3.0.qualifier
+Bundle-ClassPath: .
+Bundle-Localization: plugin
+

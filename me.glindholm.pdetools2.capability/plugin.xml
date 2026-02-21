@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.activities">
+      <category
+            description="Enable/Disable Features of PDE-Tools, Use &quot;Advanced&quot; Button to detail."
+            id="me.glindholm.pdetools2.capability.category"
+            name="PDE-Tools">
+      </category>
+
+   </extension>
+   <extension
+         point="org.eclipse.ui.activities">
+               <activity
+                     description="Show In Shell, Open Console Here Menu"
+                     id="me.glindholm.pdetools2.capability.shell"
+                     name="Shell Integration">
+      </activity>
+      <activityPatternBinding
+            activityId="me.glindholm.pdetools2.capability.shell"
+            isEqualityPattern="false"
+            pattern="net\.jeeeyul\.pdetools/net\.jeeeyul\.pdetools\.shell.*">
+      </activityPatternBinding>
+      <categoryActivityBinding
+            activityId="me.glindholm.pdetools2.capability.shell"
+            categoryId="me.glindholm.pdetools2.capability.category">
+      </categoryActivityBinding>
+      <defaultEnablement
+            id="me.glindholm.pdetools2.capability.shell">
+      </defaultEnablement>
+   </extension>
+   
+      <extension
+         point="org.eclipse.ui.activities">
+               <activity
+                     description="Snapshot Tool and Snapshot View"
+                     id="me.glindholm.pdetools2.capability.snapshot"
+                     name="Snapshot Tool">
+      </activity>
+      <activityPatternBinding
+            activityId="me.glindholm.pdetools2.capability.snapshot"
+            isEqualityPattern="false"
+            pattern="net\.jeeeyul\.pdetools/net\.jeeeyul\.pdetools\.snapshot.*">
+      </activityPatternBinding>
+      <categoryActivityBinding
+            activityId="me.glindholm.pdetools2.capability.snapshot"
+            categoryId="me.glindholm.pdetools2.capability.category">
+      </categoryActivityBinding>
+      <defaultEnablement
+            id="me.glindholm.pdetools2.capability.snapshot">
+      </defaultEnablement>
+   </extension>
+      <extension
+            point="org.eclipse.ui.activities">
+         <activity
+               description="Launch New Workspace Menu"
+               id="me.glindholm.pdetools2.capability.wslauncher"
+               name="Workspace Launcher">
+         </activity>
+         <activityPatternBinding
+               activityId="me.glindholm.pdetools2.capability.wslauncher"
+               isEqualityPattern="false"
+               pattern="net\.jeeeyul\.pdetools/net\.jeeeyul\.pdetools\.wslauncher.*">
+         </activityPatternBinding>
+         <categoryActivityBinding
+               activityId="me.glindholm.pdetools2.capability.wslauncher"
+               categoryId="me.glindholm.pdetools2.capability.category">
+         </categoryActivityBinding>
+         <defaultEnablement
+               id="me.glindholm.pdetools2.capability.wslauncher">
+         </defaultEnablement>
+      </extension>
+      <extension
+            point="org.eclipse.ui.activities">
+         <activity
+               description="Clipboard History Feature"
+               id="me.glindholm.pdetools2.capability.clipboard"
+               name="Clipboard">
+         </activity>
+         <activityPatternBinding
+               activityId="me.glindholm.pdetools2.capability.clipboard"
+               isEqualityPattern="false"
+               pattern="net\.jeeeyul\.pdetools/net\.jeeeyul\.pdetools\.clipboard.*">
+         </activityPatternBinding>
+         <categoryActivityBinding
+               activityId="me.glindholm.pdetools2.capability.clipboard"
+               categoryId="me.glindholm.pdetools2.capability.category">
+         </categoryActivityBinding>
+         <defaultEnablement
+               id="me.glindholm.pdetools2.capability.clipboard">
+         </defaultEnablement>
+      </extension>
+      <extension
+            point="org.eclipse.ui.activities">
+         <activity
+               description="Bundle Images View"
+               id="me.glindholm.pdetools2.capability.biv"
+               name="Bundle Images View">
+         </activity>
+         <activityPatternBinding
+               activityId="me.glindholm.pdetools2.capability.biv"
+               isEqualityPattern="false"
+               pattern="net\.jeeeyul\.pdetools/net\.jeeeyul\.pdetools\.biv.*">
+         </activityPatternBinding>
+         <categoryActivityBinding
+               activityId="me.glindholm.pdetools2.capability.biv"
+               categoryId="me.glindholm.pdetools2.capability.category">
+         </categoryActivityBinding>
+         <defaultEnablement
+               id="me.glindholm.pdetools2.capability.biv">
+         </defaultEnablement>
+      </extension>
+      <extension
+            point="org.eclipse.ui.activities">
+         <activity
+               description="Crazy Outline View"
+               id="me.glindholm.pdetools2.capability.crazyoutline"
+               name="Crazy Outline view">
+         </activity>
+         <activityPatternBinding
+               activityId="me.glindholm.pdetools2.capability.crazyoutline"
+               isEqualityPattern="false"
+               pattern="net\.jeeeyul\.pdetools/net\.jeeeyul\.pdetools\.crazyoutline.*">
+         </activityPatternBinding>
+         <categoryActivityBinding
+               activityId="me.glindholm.pdetools2.capability.crazyoutline"
+               categoryId="me.glindholm.pdetools2.capability.category">
+         </categoryActivityBinding>
+         <defaultEnablement
+               id="me.glindholm.pdetools2.capability.crazyoutline">
+         </defaultEnablement>
+      </extension>
+   
+
+</plugin>

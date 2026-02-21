@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project" default="build-feature-and-plugins">
+  <taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${basedir}/libs/ant-contrib-1.0b3.jar" />
+  <taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpath="${basedir}/libs/xmltask.jar" />
+
+  <property name="workspace" location="${ant.file}/../.." />
+  <property name="gitroot" location="${ant.file}/../../.." />
+  <property name="project" location="${ant.file}/.." />
+
+  <property name="build" location="${project}/build" />
+  <property name="build-feature-and-plugins" location="${build}/featureAndPlugins" />
+  <property name="build-repository" location="${gitroot}/jeeeyul.github.io/${build-type}" />
+
+  <property name="feature-id" value="" />
+
+  <loadproperties srcfile="${project}/sign.properties" />
+
+  <scriptdef name="update-plugin-version" language="javascript" src="${basedir}/scripts/update-version.js">
+    <attribute name="version" />
+    <attribute name="plugin" />
+    <attribute name="dependencies" />
+  </scriptdef>
+
+  <scriptdef name="append-property" language="javascript" src="${basedir}/scripts/append-property.js">
+    <attribute name="property" />
+    <attribute name="value" />
+  </scriptdef>
+
+  <target name="build-feature-and-plugins" depends="clean, generate-scripts, delete-existing" description="build feature and plugins, and signing them.">
+
+    <echo>Executing scripts</echo>
+    <ant antfile="${workspace}/${feature-id}/build.xml" inheritall="false">
+      <property name="compilerArg" value="-encoding UTF8" />
+      <property name="javacSource" value="21" />
+      <property name="javacTarget" value="21" />
+      <property name="buildDirectory" value="temp-build" />
+      <property name="feature.destination" location="${build-feature-and-plugins}/features" />
+      <property name="plugin.destination" location="${build-feature-and-plugins}/plugins" />
+    </ant>
+
+    <echo>signing...</echo>
+    <foreach target="signjar" param="file">
+      <path>
+        <fileset dir="${build-feature-and-plugins}" includes="**/*.jar" />
+      </path>
+    </foreach>
+
+    <move todir="${build-repository}">
+      <fileset dir="${build-feature-and-plugins}" includes="**" />
+    </move>
+
+    <antcall target="clean-generated-script" />
+
+    <eclipse.convertPath fileSystemPath="${project}" property="resourcePath" />
+    <eclipse.refreshLocal resource="${resourcePath}" depth="infinite" />
+  </target>
+
+  <target name="clean" description="Cleans feature and plugins build result.">
+    <echo>Cleaning previous build.</echo>
+    <delete dir="${build-feature-and-plugins}" includes="**/*" includeemptydirs="true" />
+  </target>
+
+  <target name="clean-generated-script" description="Deletes generated ant script for plugin and feature build.">
+    <echo>Cleaning generated scripts.</echo>
+    <delete includeemptydirs="true">
+      <fileset dir="${workspace}">
+        <include name="*/build.xml" />
+        <include name="*/javaCompiler...args" />
+        <include name="*/@dot/**/*" />
+        <include name="*/temp-build/**/*" />
+        <include name="*/${buildDirectory}/**/*" />
+        <include name="*/temp-build" />
+        <include name="*/@dot.log" />
+        <include name="*/@dot" />
+        <include name="*/compilation.problem" />
+        <include name="assemble.*.xml" />
+        <include name="package.*.xml" />
+      </fileset>
+    </delete>
+  </target>
+
+
+
+  <target name="generate-scripts" depends="set-timestamp, update-plugin-versions" description="Generates ant scripts to build feature and plugins.">
+    <echo>Generating ant scripts.</echo>
+    <eclipse.buildScript elements="feature@${feature-id}" forceContextQualifier="${timestamp}" baselocation="${eclipse.home}" builddirectory="${workspace}" pluginpath="${build-repository}/plugins"/>
+    <echo>${basedir}/build</echo>
+  </target>
+
+  <target name="set-timestamp" description="define a 'timestamp' property to use as qualifier.">
+    <echo>${build-repository}</echo>
+    <tstamp>
+      <format property="timestamp" pattern="'I'yyyyMMdd-HHmmss" locale="ko,KR" />
+    </tstamp>
+  </target>
+
+  <target name="signjar" description="Signs given ${file} if keystore exists.">
+    <available file="${keystore}" property="keystore.exists" />
+    <if>
+      <equals arg1="${keystore.exists}" arg2="true" />
+      <then>
+        <signjar jar="${file}" alias="${alias}" keystore="${keystore}" keypass="${keypass}" storepass="${storepass}" />
+      </then>
+    </if>
+  </target>
+
+  <target name="collect-plugin-id-list">
+    <xmltask source="${workspace}/${feature-id}/feature.xml">
+      <call path="feature/plugin">
+        <param name="id" path="@id" />
+        <actions>
+          <append-property property="plugin-id-list" value="@{id}" />
+        </actions>
+      </call>
+    </xmltask>
+
+    <echo>Plugins are detected: ${plugin-id-list}</echo>
+  </target>
+
+  <target name="update-plugin-versions" depends="collect-plugin-id-list">
+    <for param="each" list="${plugin-id-list}">
+      <sequential>
+        <echo>Change version of @{each} to ${version}</echo>
+        <update-plugin-version version="${version}" plugin="${workspace}/@{each}" dependencies="${plugin-id-list}" />
+      </sequential>
+    </for>
+    <for param="each" list="${plugin-id-list}">
+      <sequential>
+        <eclipse.refreshLocal resource="/@{each}/META-INF/MANIFEST.MF" />
+      </sequential>
+    </for>
+
+    <echo>Change version of ${feature-id} to ${version}</echo>
+    <xmltask source="${workspace}/${feature-id}/feature.xml" dest="${workspace}/${feature-id}/feature.xml">
+      <replace path="/feature/@version" withText="${version}.qualifier" />
+    </xmltask>
+    <eclipse.refreshLocal resource="${workspace}/${feature-id}/feature.xml" />
+  </target>
+
+  <target name="delete-existing" depends="collect-plugin-id-list">
+    <for param="each" list="${plugin-id-list}">
+      <sequential>
+        <echo>Deleting ${build-repository}/plugins/@{each}_${version}.*.jar</echo>
+        <delete>
+          <fileset dir="${build-repository}/plugins" includes="@{each}_${version}.*.jar" />
+        </delete>
+      </sequential>
+    </for>
+
+    <echo>Deleting ${build-repository}/features/${feature-id}_${version}.*.jar</echo>
+    <delete>
+      <fileset dir="${build-repository}/features" includes="${feature-id}_${version}.*.jar" />
+    </delete>
+  </target>
+
+</project>
