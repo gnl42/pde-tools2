@@ -16,104 +16,107 @@ import org.eclipse.jface.viewers.IDecoration
 import org.eclipse.jface.viewers.ILightweightLabelDecorator
 import org.eclipse.jface.viewers.LabelProviderChangedEvent
 import org.eclipse.swt.graphics.ImageData
+import org.eclipse.swt.graphics.ImageDataProvider
 import org.eclipse.swt.widgets.Display
 
 class IconDecorator extends BaseLabelProvider implements ILightweightLabelDecorator, IResourceChangeListener {
-	static val IMAGE_FILES = newArrayList("jpg", "gif", "png", "bmp")
-	HashMap<IFile, ImageData> decoratedFiles = new HashMap()
-	HashSet<IFile> invalidFiles = new HashSet()
-	ImageLoadingQueue queue
+  static val IMAGE_FILES = newArrayList("jpg", "gif", "png", "bmp")
+  HashMap<IFile, ImageDataProvider> decoratedFiles = new HashMap()
+  HashSet<IFile> invalidFiles = new HashSet()
+  ImageLoadingQueue queue
 
-	new(){
-		queue = new ImageLoadingQueue()
-		queue.loadHandler = [it|loaded(it)]
-		ResourcesPlugin::workspace.addResourceChangeListener(this)
-	}
+  new(){
+    queue = new ImageLoadingQueue()
+    queue.loadHandler = [it|loaded(it)]
+    ResourcesPlugin::workspace.addResourceChangeListener(this)
+  }
 
-	override decorate(Object element, IDecoration decoration) {
-		if(element instanceof IFile) {
-			var file = element as IFile
-			if(file.isImageFile()) {
-				doDecorateImageFile(file, decoration)
-			}
-		}
-	}
+  override decorate(Object element, IDecoration decoration) {
+    if(element instanceof IFile) {
+      var file = element as IFile
+      if(file.isImageFile()) {
+        doDecorateImageFile(file, decoration)
+      }
+    }
+  }
 
-	def doDecorateImageFile(IFile file, IDecoration decoration) {
-		if(invalidFiles.contains(file)){
-			decoration.replaceImage(SharedImages::getImageDescriptor(SharedImages::INVAILD_SMALL));
-		}
+  def doDecorateImageFile(IFile file, IDecoration decoration) {
+    if(invalidFiles.contains(file)){
+      decoration.replaceImage(SharedImages::getImageDescriptor(SharedImages::INVAILD_SMALL));
+    }
 
-		else if(decoratedFiles.containsKey(file)) {
-			var data = decoratedFiles.get(file)
-			if(data !== null)
-				decoration.replaceImage(ImageDescriptor::createFromImageData(data))
-		} 
-		
-		else {
-			queue.add(file)
-		}
-	}
+    else if(decoratedFiles.containsKey(file)) {
+      val provider = decoratedFiles.get(file)
+      if(provider !== null)
+        decoration.replaceImage(ImageDescriptor::createFromImageDataProvider(provider))
+    }
 
-	def replaceImage(IDecoration decoration, ImageDescriptor descriptor){
-		var ctx = decoration.decorationContext
-		if(ctx instanceof DecorationContext) {
-			var ctxImpl = ctx as DecorationContext
-			ctxImpl.putProperty(IDecoration::ENABLE_REPLACE, Boolean::TRUE)
-		}
-		decoration.addOverlay(descriptor, IDecoration::REPLACE)
-	}
+    else {
+      queue.add(file)
+    }
+  }
 
-	def boolean isImageFile(IFile file) {
-		if(!file.exists) {
-			return false
-		}
-		if(file.projectRelativePath.fileExtension === null){
-			return false;
-		}
-		return IMAGE_FILES.contains(file.projectRelativePath.fileExtension.toLowerCase)
-	}
+  def replaceImage(IDecoration decoration, ImageDescriptor descriptor){
+    var ctx = decoration.decorationContext
+    if(ctx instanceof DecorationContext) {
+      var ctxImpl = ctx as DecorationContext
+      ctxImpl.putProperty(IDecoration::ENABLE_REPLACE, Boolean::TRUE)
+    }
+    decoration.addOverlay(descriptor, IDecoration::REPLACE)
+  }
 
-	override resourceChanged(IResourceChangeEvent event) {
-		var delta = event.delta
-		if(delta === null) {
-			return
-		}
-		for(eachFile : new ArrayList(decoratedFiles.keySet)){
-			var eachDelta = delta.findMember(eachFile.fullPath)
-			if(eachDelta !== null) {
-				switch(eachDelta.kind) {
-					case IResourceDelta::REMOVED: {
-						decoratedFiles.remove(eachFile)
-						invalidFiles.remove(eachDelta)
-					}
-				default:{
-						invalidFiles.remove(eachDelta)
-						queue.add(eachFile)
-					}
-				}
-			}
-		}
-	}
+  def boolean isImageFile(IFile file) {
+    if(!file.exists) {
+      return false
+    }
+    if(file.projectRelativePath.fileExtension === null){
+      return false;
+    }
+    return IMAGE_FILES.contains(file.projectRelativePath.fileExtension.toLowerCase)
+  }
 
-	override dispose() {
-		invalidFiles.clear()
-		decoratedFiles.clear()
-		ResourcesPlugin::workspace.removeResourceChangeListener(this)
-		super.dispose()
-	}
+  override resourceChanged(IResourceChangeEvent event) {
+    var delta = event.delta
+    if(delta === null) {
+      return
+    }
+    for(eachFile : new ArrayList(decoratedFiles.keySet)){
+      var eachDelta = delta.findMember(eachFile.fullPath)
+      if(eachDelta !== null) {
+        switch(eachDelta.kind) {
+          case IResourceDelta::REMOVED: {
+            decoratedFiles.remove(eachFile)
+            invalidFiles.remove(eachFile)
+          }
+        default:{
+            invalidFiles.remove(eachFile)
+            queue.add(eachFile)
+          }
+        }
+      }
+    }
+  }
 
-	def void loaded(ImageDataEntry[] datas) {
-		for(each : datas){
-			if(each.imageData !== null){
-				decoratedFiles.put(each.file, each.imageData)
-			}else{
-				invalidFiles.add(each.file)
-			}
-		}
-		val me = this
-		Display::getDefault().asyncExec([|
-			fireLabelProviderChanged(new LabelProviderChangedEvent(me))
-		]);
-	}
+  override dispose() {
+    invalidFiles.clear()
+    decoratedFiles.clear()
+    ResourcesPlugin::workspace.removeResourceChangeListener(this)
+    super.dispose()
+  }
+
+  def void loaded(ImageDataEntry[] datas) {
+    for(each : datas){
+      if(each.imageData !== null){
+        val ImageData data = each.imageData
+        val ImageDataProvider provider = [zoom | data]
+        decoratedFiles.put(each.file, provider)
+      }else{
+        invalidFiles.add(each.file)
+      }
+    }
+    val me = this
+    Display::getDefault().asyncExec([|
+      fireLabelProviderChanged(new LabelProviderChangedEvent(me))
+    ]);
+  }
 }
