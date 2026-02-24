@@ -1,0 +1,46 @@
+package me.glindholm.pdetools2.shell
+
+import java.io.File
+import java.net.URI
+import me.glindholm.pdetools2.clipboard.IClipboardService
+import org.eclipse.core.commands.AbstractHandler
+import org.eclipse.core.commands.ExecutionEvent
+import org.eclipse.core.commands.ExecutionException
+import org.eclipse.core.filesystem.EFS
+import org.eclipse.core.resources.IResource
+import org.eclipse.core.runtime.NullProgressMonitor
+import org.eclipse.core.runtime.Platform
+import org.eclipse.jface.viewers.IStructuredSelection
+import org.eclipse.swt.dnd.TextTransfer
+
+import static extension org.eclipse.ui.handlers.HandlerUtil.*
+
+class CopyResourcePathHandler extends AbstractHandler {
+
+	public static val COMMAND_ID = "me.glindholm.pdetools2.command.copy.resource.path"
+
+	override execute(ExecutionEvent event) throws ExecutionException {
+		var selection = event.currentSelection as IStructuredSelection
+		var resource = Platform::adapterManager.getAdapter(selection.firstElement, typeof(IResource)) as IResource
+		var URI uri = null
+		if (resource.linked) {
+			uri = resource.rawLocationURI
+		} else {
+			uri = resource.locationURI
+		}
+
+		try {
+			val File file = EFS::getStore(uri).toLocalFile(0, new NullProgressMonitor)
+
+			IClipboardService.INSTANCE => [
+				nativeClipboard.setContents(#[file.absolutePath], #[TextTransfer.instance])
+				createSnapshotIfNeeded()
+			]
+		} catch (Exception e) {
+			e.printStackTrace()
+		}
+
+		return null
+	}
+
+}

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>me.glindholm</groupId>
+        <artifactId>pde-tools-aggregator</artifactId>
+        <version>1.3.0-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
+    <artifactId>me.glindholm.pdetools2</artifactId>
+    <packaging>eclipse-plugin</packaging>
+    <name>me.glindholm.pdetools2</name>
+
+    <build>
+        <plugins>
+            <!-- Ensure src-gen is treated as a generated source folder in
+            Eclipse/M2E -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-src-gen</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src-gen</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.xtext</groupId>
+                <artifactId>xtend-maven-plugin</artifactId>
+                <version>2.41.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-xtext</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>xtend-install-debug-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputDirectory>src-gen</outputDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
