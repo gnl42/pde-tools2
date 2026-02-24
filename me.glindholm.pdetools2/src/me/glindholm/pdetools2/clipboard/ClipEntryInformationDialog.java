@@ -1,6 +1,5 @@
 package me.glindholm.pdetools2.clipboard;
 
-import me.glindholm.pdetools2.clipboard.ClipEntryInformationGenerator;
 import net.jeeeyul.swtend.SWTExtensions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -24,108 +23,108 @@ import me.glindholm.pdetools2.clipboard.internal.OpenResourceFunction;
 import me.glindholm.pdetools2.model.pdetools.ClipboardEntry;
 
 public class ClipEntryInformationDialog implements ISelectionChangedListener {
-	private SWTExtensions $ = SWTExtensions.INSTANCE;
-	private Shell parentShell;
-	private ISelectionProvider selectionProvider;
-	private Shell shell;
-	private Browser browser;
-	private ClipEntryInformationGenerator infoGenerator = new ClipEntryInformationGenerator();
+    private SWTExtensions $ = SWTExtensions.INSTANCE;
+    private Shell parentShell;
+    private ISelectionProvider selectionProvider;
+    private Shell shell;
+    private Browser browser;
+    private ClipEntryInformationGenerator infoGenerator = new ClipEntryInformationGenerator();
 
-	private UIJob openJob;
-	private ClipboardEntry entry;
+    private UIJob openJob;
+    private ClipboardEntry entry;
 
-	public ClipEntryInformationDialog(Shell parentShell, ISelectionProvider selectionProvider) {
-		super();
-		this.parentShell = parentShell;
-		this.selectionProvider = selectionProvider;
-		parentShell.addListener(SWT.Resize, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				allocateShellBounds();
-			}
-		});
-		selectionProvider.addSelectionChangedListener(this);
+    public ClipEntryInformationDialog(Shell parentShell, ISelectionProvider selectionProvider) {
+        super();
+        this.parentShell = parentShell;
+        this.selectionProvider = selectionProvider;
+        parentShell.addListener(SWT.Resize, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                allocateShellBounds();
+            }
+        });
+        selectionProvider.addSelectionChangedListener(this);
 
-		openJob = new UIJob("Open Information") {
-			@Override
-			public IStatus runInUIThread(IProgressMonitor monitor) {
-				doOpen();
-				return Status.OK_STATUS;
-			}
-		};
-		openJob.setSystem(true);
-		open();
+        openJob = new UIJob("Open Information") {
+            @Override
+            public IStatus runInUIThread(IProgressMonitor monitor) {
+                doOpen();
+                return Status.OK_STATUS;
+            }
+        };
+        openJob.setSystem(true);
+        open();
 
-	}
+    }
 
-	private void create() {
-		if (shell != null && !shell.isDisposed()) {
-			return;
-		}
-		shell = new Shell(parentShell, SWT.ON_TOP | SWT.RESIZE);
-		shell.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-		shell.setBackgroundMode(SWT.INHERIT_FORCE);
-		shell.setLayout(new FillLayout());
-		browser = new Browser(shell, SWT.NORMAL);
-		new OpenJavaElementFunction(browser);
-		new OpenResourceFunction(browser);
-	}
+    private void create() {
+        if (shell != null && !shell.isDisposed()) {
+            return;
+        }
+        shell = new Shell(parentShell, SWT.ON_TOP | SWT.RESIZE);
+        shell.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+        shell.setBackgroundMode(SWT.INHERIT_FORCE);
+        shell.setLayout(new FillLayout());
+        browser = new Browser(shell, SWT.NORMAL);
+        new OpenJavaElementFunction(browser);
+        new OpenResourceFunction(browser);
+    }
 
-	private void allocateShellBounds() {
-		if (shell == null || shell.isDisposed()) {
-			return;
-		}
+    private void allocateShellBounds() {
+        if (shell == null || shell.isDisposed()) {
+            return;
+        }
 
-		Rectangle monitor = parentShell.getMonitor().getClientArea();
-		Rectangle parentBounds = parentShell.getBounds();
-		Rectangle newBounds = $.getTranslated(parentBounds, parentBounds.width, 0);
+        Rectangle monitor = parentShell.getMonitor().getClientArea();
+        Rectangle parentBounds = parentShell.getBounds();
+        Rectangle newBounds = $.getTranslated(parentBounds, parentBounds.width, 0);
 
-		if (!$.contains(monitor, $.getRight(newBounds))) {
-			$.translate(newBounds, parentBounds.width * -2, 0);
-		}
-		
-		shell.setBounds(newBounds);
-	}
+        if (!$.contains(monitor, $.getRight(newBounds))) {
+            $.translate(newBounds, parentBounds.width * -2, 0);
+        }
 
-	@Override
-	public void selectionChanged(SelectionChangedEvent event) {
-		open();
-	}
+        shell.setBounds(newBounds);
+    }
 
-	private void open() {
-		if (shell == null || shell.isDisposed()) {
-			create();
-			allocateShellBounds();
-		}
-		openJob.schedule(300);
-	}
+    @Override
+    public void selectionChanged(SelectionChangedEvent event) {
+        open();
+    }
 
-	private void doOpen() {
-		if (parentShell == null || parentShell.isDisposed()) {
-			return;
-		}
+    private void open() {
+        if (shell == null || shell.isDisposed()) {
+            create();
+            allocateShellBounds();
+        }
+        openJob.schedule(300);
+    }
 
-		ClipboardEntry newEntry = (ClipboardEntry) ((IStructuredSelection) selectionProvider.getSelection())
-				.getFirstElement();
-		if (newEntry == entry) {
-			return;
-		}
+    private void doOpen() {
+        if (parentShell == null || parentShell.isDisposed()) {
+            return;
+        }
 
-		if (shell == null || shell.isDisposed()) {
-			create();
-		}
-		allocateShellBounds();
+        ClipboardEntry newEntry = (ClipboardEntry) ((IStructuredSelection) selectionProvider.getSelection())
+                .getFirstElement();
+        if (newEntry == entry) {
+            return;
+        }
 
-		entry = newEntry;
-		browser.setText(infoGenerator.generate(entry).toString());
-		shell.setVisible(true);
-	}
+        if (shell == null || shell.isDisposed()) {
+            create();
+        }
+        allocateShellBounds();
 
-	public Shell getShell() {
-		if (shell == null || shell.isDisposed()) {
-			create();
-		}
-		return shell;
-	}
+        entry = newEntry;
+        browser.setText(infoGenerator.generate(entry).toString());
+        shell.setVisible(true);
+    }
+
+    public Shell getShell() {
+        if (shell == null || shell.isDisposed()) {
+            create();
+        }
+        return shell;
+    }
 
 }

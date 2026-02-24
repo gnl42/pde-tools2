@@ -59,7 +59,6 @@ import me.glindholm.pdetools2.model.pdetools.PdetoolsFactory;
 import me.glindholm.pdetools2.model.pdetools.PdetoolsPackage;
 import me.glindholm.pdetools2.model.pdetools.TextRange;
 import me.glindholm.pdetools2.model.pdetools.provider.PdetoolsItemProviderAdapterFactory;
-import me.glindholm.pdetools2.clipboard.internal.ActivePartResolver;
 
 public class ClipboardServiceImpl implements IClipboardService {
     private static IClipboardService INSTANCE;

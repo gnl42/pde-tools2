@@ -16,79 +16,77 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 
 import me.glindholm.pdetools2.jdt.internal.PrefixUtil;
-import me.glindholm.pdetools2.jdt.ColorProposal;
-import me.glindholm.pdetools2.jdt.RGBProposal;
 
 public class SematicsProposalComputer implements IJavaCompletionProposalComputer {
 
-	@Override
-	public void sessionStarted() {
+    @Override
+    public void sessionStarted() {
 
-	}
+    }
 
-	public CharSequence computeIdentifierPrefix(IDocument document, int offset) throws BadLocationException {
-		int end = offset;
-		int start = end;
-		while (--start >= 0) {
-			if (!Character.isJavaIdentifierPart(document.getChar(start)))
-				break;
-		}
-		start++;
-		return document.get(start, end - start);
-	}
+    public CharSequence computeIdentifierPrefix(IDocument document, int offset) throws BadLocationException {
+        int end = offset;
+        int start = end;
+        while (--start >= 0) {
+            if (!Character.isJavaIdentifierPart(document.getChar(start)))
+                break;
+        }
+        start++;
+        return document.get(start, end - start);
+    }
 
-	@Override
-	public List<ICompletionProposal> computeCompletionProposals(ContentAssistInvocationContext context,
-			IProgressMonitor monitor) {
-		JavaContentAssistInvocationContext jCtx = (JavaContentAssistInvocationContext) context;
-		ArrayList<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
+    @Override
+    public List<ICompletionProposal> computeCompletionProposals(ContentAssistInvocationContext context,
+            IProgressMonitor monitor) {
+        JavaContentAssistInvocationContext jCtx = (JavaContentAssistInvocationContext) context;
+        ArrayList<ICompletionProposal> result = new ArrayList<ICompletionProposal>();
 
-		try {
-			String prefix = jCtx.computeIdentifierPrefix().toString();
-			String previousToken = PrefixUtil.computeIdentifierPrefix(jCtx.getDocument(), jCtx.getInvocationOffset()
-					- prefix.length() - 1);
+        try {
+            String prefix = jCtx.computeIdentifierPrefix().toString();
+            String previousToken = PrefixUtil.computeIdentifierPrefix(jCtx.getDocument(), jCtx.getInvocationOffset()
+                    - prefix.length() - 1);
 
-			IType expectedType = jCtx.getExpectedType();
-			if (expectedType != null) {
+            IType expectedType = jCtx.getExpectedType();
+            if (expectedType != null) {
 
-				String typeName = expectedType.getFullyQualifiedName();
-				if (typeName.equals(Color.class.getCanonicalName())) {
-					if ((prefix.length() > 0 && "new".startsWith(prefix))
-							|| ("new".startsWith(previousToken) && "Color".startsWith(prefix))) {
-						result.add(new ColorProposal(jCtx));
-					}
-				}
+                String typeName = expectedType.getFullyQualifiedName();
+                if (typeName.equals(Color.class.getCanonicalName())) {
+                    if ((prefix.length() > 0 && "new".startsWith(prefix))
+                            || ("new".startsWith(previousToken) && "Color".startsWith(prefix))) {
+                        result.add(new ColorProposal(jCtx));
+                    }
+                }
 
-				else if (typeName.equals(RGB.class.getCanonicalName())) {
-					if ((prefix.length() > 0 && "new".startsWith(prefix))
-							|| ("new".startsWith(previousToken) && "RGB".startsWith(prefix))) {
-						result.add(new RGBProposal(jCtx));
-					}
-				}
-			}
+                else if (typeName.equals(RGB.class.getCanonicalName())) {
+                    if ((prefix.length() > 0 && "new".startsWith(prefix))
+                            || ("new".startsWith(previousToken) && "RGB".startsWith(prefix))) {
+                        result.add(new RGBProposal(jCtx));
+                    }
+                }
+            }
 
-		} catch (BadLocationException e1) {
-			e1.printStackTrace();
-		}
+        } catch (BadLocationException e1) {
+            e1.printStackTrace();
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	@Override
-	public List<IContextInformation> computeContextInformation(ContentAssistInvocationContext context,
-			IProgressMonitor monitor) {
-		ArrayList<IContextInformation> result = new ArrayList<IContextInformation>();
-		return result;
-	}
+    @Override
+    public List<IContextInformation> computeContextInformation(ContentAssistInvocationContext context,
+            IProgressMonitor monitor) {
+        ArrayList<IContextInformation> result = new ArrayList<IContextInformation>();
+        return result;
+    }
 
-	@Override
-	public String getErrorMessage() {
-		return null;
-	}
+    @Override
+    public String getErrorMessage() {
+        return null;
+    }
 
-	@Override
-	public void sessionEnded() {
+    @Override
+    public void sessionEnded() {
 
-	}
+    }
 
 }

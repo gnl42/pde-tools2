@@ -11,73 +11,72 @@ import org.eclipse.swt.widgets.Shell;
 import me.glindholm.pdetools2.PDEToolsCore;
 import me.glindholm.pdetools2.shared.AnimateJob;
 import me.glindholm.pdetools2.shared.PlayThread;
-import me.glindholm.pdetools2.snapshot.capture.CaptureBoundsComputer;
 
 public class Flash {
-	private Control target;
-	private Shell shell;
-	private AnimateJob job;
-	private CaptureBoundsComputer boundsComputer = new CaptureBoundsComputer();
+    private Control target;
+    private Shell shell;
+    private AnimateJob job;
+    private CaptureBoundsComputer boundsComputer = new CaptureBoundsComputer();
 
-	public AnimateJob getJob() {
-		if (job == null) {
-			job = new AnimateJob() {
-				@Override
-				protected void doAnimate(double p) {
-					if (shell != null && !shell.isDisposed()) {
-						int alpha = (int) (255 - (255 * p));
-						shell.setAlpha(alpha);
-					}
-				}
+    public AnimateJob getJob() {
+        if (job == null) {
+            job = new AnimateJob() {
+                @Override
+                protected void doAnimate(double p) {
+                    if (shell != null && !shell.isDisposed()) {
+                        int alpha = (int) (255 - (255 * p));
+                        shell.setAlpha(alpha);
+                    }
+                }
 
-				@Override
-				protected void onEnd() {
-					shell.dispose();
-				}
-			};
+                @Override
+                protected void onEnd() {
+                    shell.dispose();
+                }
+            };
 
-			job.setLength(600);
-		}
-		return job;
-	}
+            job.setLength(600);
+        }
+        return job;
+    }
 
-	public Flash(Control target) {
-		create(target.getDisplay());
-		setTarget(target);
-	}
+    public Flash(Control target) {
+        create(target.getDisplay());
+        setTarget(target);
+    }
 
-	private void setTarget(Control target) {
-		if (this.target == target) {
-			return;
-		}
-		this.target = target;
+    private void setTarget(Control target) {
+        if (this.target == target) {
+            return;
+        }
+        this.target = target;
 
-		if (target == null) {
-			shell.setVisible(false);
-			return;
-		}
+        if (target == null) {
+            shell.setVisible(false);
+            return;
+        }
 
-		Rectangle bounds = boundsComputer.compute(target);
-		shell.setBounds(bounds);
-		shell.setVisible(true);
+        Rectangle bounds = boundsComputer.compute(target);
+        shell.setBounds(bounds);
+        shell.setVisible(true);
 
-	}
+    }
 
-	private void create(Display display) {
-		shell = new Shell(display, SWT.NO_TRIM | SWT.ON_TOP | SWT.TOOL);
-		shell.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
-		shell.setSize(0, 0);
-		shell.setVisible(false);
-		shell.update();
-	}
+    private void create(Display display) {
+        shell = new Shell(display, SWT.NO_TRIM | SWT.ON_TOP | SWT.TOOL);
+        shell.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+        shell.setSize(0, 0);
+        shell.setVisible(false);
+        shell.update();
+    }
 
-	public void start() {
-		try {
-			InputStream sound = PDEToolsCore.getDefault().getBundle().getResource("sounds/camera.wav").openStream();
-			new PlayThread(sound).schedule();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		getJob().schedule();
-	}
+    public void start() {
+        try {
+            InputStream sound = PDEToolsCore.getDefault().getBundle().getResource("sounds/camera.wav").openStream();
+            new PlayThread(sound).schedule();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        getJob().schedule();
+    }
 }

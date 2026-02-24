@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.glindholm.pdetools2.shared.SimpleGalleryItemRenderer;
-import me.glindholm.pdetools2.snapshot.SnapshotContentProvider;
 import me.glindholm.pdetools2.snapshot.handlers.CopyAction;
 import me.glindholm.pdetools2.snapshot.handlers.RedoAction;
 import me.glindholm.pdetools2.snapshot.handlers.RemoveAllAction;
@@ -45,185 +44,185 @@ import me.glindholm.pdetools2.shared.DeferredViewerUpdate;
 import me.glindholm.pdetools2.snapshot.editor.SnapshotEditor;
 
 public class SnapshotView extends ViewPart {
-	public static final String ID = "me.glindholm.pdetools2.snapshot.SnapshotView";
-	private GalleryTreeViewer viewer;
-	private EContentAdapter refresher = new EContentAdapter() {
-		public void notifyChanged(Notification notification) {
-			if (!notification.isTouch()) {
-				handleModelChange();
-			}
-			super.notifyChanged(notification);
-		};
-	};
+    public static final String ID = "me.glindholm.pdetools2.snapshot.SnapshotView";
+    private GalleryTreeViewer viewer;
+    private EContentAdapter refresher = new EContentAdapter() {
+        public void notifyChanged(Notification notification) {
+            if (!notification.isTouch()) {
+                handleModelChange();
+            }
+            super.notifyChanged(notification);
+        };
+    };
 
-	private List<SnapshotAction> snapshotActions = new ArrayList<SnapshotAction>();
+    private List<SnapshotAction> snapshotActions = new ArrayList<SnapshotAction>();
 
-	private DeferredViewerUpdate<GalleryTreeViewer> update;
+    private DeferredViewerUpdate<GalleryTreeViewer> update;
 
-	private void configureDragSource() {
-		DragSource dragSource = new DragSource(viewer.getControl(), DND.DROP_COPY);
-		dragSource.setTransfer(new Transfer[] { FileTransfer.getInstance() });
-		dragSource.addDragListener(new DragSourceListener() {
-			@Override
-			public void dragFinished(DragSourceEvent event) {
+    private void configureDragSource() {
+        DragSource dragSource = new DragSource(viewer.getControl(), DND.DROP_COPY);
+        dragSource.setTransfer(new Transfer[] { FileTransfer.getInstance() });
+        dragSource.addDragListener(new DragSourceListener() {
+            @Override
+            public void dragFinished(DragSourceEvent event) {
 
-			}
+            }
 
-			@Override
-			public void dragSetData(DragSourceEvent event) {
-				List<SnapshotEntry> selection = getSelection();
-				List<String> result = new ArrayList<String>();
-				for (SnapshotEntry each : selection) {
-					result.add(each.getAbsoulteVisibleFilePath());
-				}
-				event.data = result.toArray(new String[result.size()]);
-			}
+            @Override
+            public void dragSetData(DragSourceEvent event) {
+                List<SnapshotEntry> selection = getSelection();
+                List<String> result = new ArrayList<String>();
+                for (SnapshotEntry each : selection) {
+                    result.add(each.getAbsoulteVisibleFilePath());
+                }
+                event.data = result.toArray(new String[result.size()]);
+            }
 
-			@Override
-			public void dragStart(DragSourceEvent event) {
-				event.doit = !getSelection().isEmpty();
-				if (event.doit) {
-					event.detail = DND.DROP_COPY;
-				}
-			}
-		});
-	}
+            @Override
+            public void dragStart(DragSourceEvent event) {
+                event.doit = !getSelection().isEmpty();
+                if (event.doit) {
+                    event.detail = DND.DROP_COPY;
+                }
+            }
+        });
+    }
 
-	@Override
-	public void createPartControl(Composite parent) {
-		viewer = new GalleryTreeViewer(parent, SWT.V_SCROLL | SWT.MULTI);
-		viewer.setContentProvider(new SnapshotContentProvider());
-		viewer.setLabelProvider(new SnapshotLabelProvider());
-		viewer.setInput(SnapshotCore.getRepository());
+    @Override
+    public void createPartControl(Composite parent) {
+        viewer = new GalleryTreeViewer(parent, SWT.V_SCROLL | SWT.MULTI);
+        viewer.setContentProvider(new SnapshotContentProvider());
+        viewer.setLabelProvider(new SnapshotLabelProvider());
+        viewer.setInput(SnapshotCore.getRepository());
 
-		DefaultGalleryGroupRenderer rederer = (DefaultGalleryGroupRenderer) viewer.getGallery().getGroupRenderer();
-		rederer.setAutoMargin(true);
+        DefaultGalleryGroupRenderer rederer = (DefaultGalleryGroupRenderer) viewer.getGallery().getGroupRenderer();
+        rederer.setAutoMargin(true);
 
-		SimpleGalleryItemRenderer itemRenderer = new SimpleGalleryItemRenderer();
-		viewer.getGallery().setItemRenderer(itemRenderer);
+        SimpleGalleryItemRenderer itemRenderer = new SimpleGalleryItemRenderer();
+        viewer.getGallery().setItemRenderer(itemRenderer);
 
-		SnapshotCore.getRepository().eAdapters().add(refresher);
+        SnapshotCore.getRepository().eAdapters().add(refresher);
 
-		configureActions();
+        configureActions();
 
-		viewer.addOpenListener(new IOpenListener() {
-			@Override
-			public void open(OpenEvent event) {
-				List<SnapshotEntry> selection = getSelection();
-				if (selection.size() == 1) {
-					doOpen(selection.get(0));
-				}
-			}
-		});
+        viewer.addOpenListener(new IOpenListener() {
+            @Override
+            public void open(OpenEvent event) {
+                List<SnapshotEntry> selection = getSelection();
+                if (selection.size() == 1) {
+                    doOpen(selection.get(0));
+                }
+            }
+        });
 
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-			@Override
-			public void selectionChanged(SelectionChangedEvent event) {
-				updateActions();
-			}
-		});
+        viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                updateActions();
+            }
+        });
 
-		configureDragSource();
-		updateActions();
-	}
+        configureDragSource();
+        updateActions();
+    }
 
-	private void configureActions() {
-		MenuManager menuManager = new MenuManager();
-		Menu menu = menuManager.createContextMenu(viewer.getControl());
-		viewer.getControl().setMenu(menu);
-		getSite().registerContextMenu(menuManager, viewer);
+    private void configureActions() {
+        MenuManager menuManager = new MenuManager();
+        Menu menu = menuManager.createContextMenu(viewer.getControl());
+        viewer.getControl().setMenu(menu);
+        getSite().registerContextMenu(menuManager, viewer);
 
-		getSite().setSelectionProvider(viewer);
+        getSite().setSelectionProvider(viewer);
 
-		RemoveAllAction removeAllAction = new RemoveAllAction(SnapshotCore.getRepository());
-		snapshotActions.add(removeAllAction);
-		getViewSite().getActionBars().getToolBarManager().add(removeAllAction);
+        RemoveAllAction removeAllAction = new RemoveAllAction(SnapshotCore.getRepository());
+        snapshotActions.add(removeAllAction);
+        getViewSite().getActionBars().getToolBarManager().add(removeAllAction);
 
-		UndoAction undoAction = new UndoAction(SnapshotCore.getRepository());
-		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.UNDO.getId(), undoAction);
-		snapshotActions.add(undoAction);
+        UndoAction undoAction = new UndoAction(SnapshotCore.getRepository());
+        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.UNDO.getId(), undoAction);
+        snapshotActions.add(undoAction);
 
-		RedoAction redoAction = new RedoAction(SnapshotCore.getRepository());
-		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.REDO.getId(), redoAction);
-		snapshotActions.add(redoAction);
+        RedoAction redoAction = new RedoAction(SnapshotCore.getRepository());
+        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.REDO.getId(), redoAction);
+        snapshotActions.add(redoAction);
 
-		CopyAction copyAction = new CopyAction(SnapshotCore.getRepository());
-		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
-		snapshotActions.add(copyAction);
-		
-		RemoveSnapshotAction removeAction = new RemoveSnapshotAction(SnapshotCore.getRepository());
-		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.DELETE.getId(), removeAction);
-		snapshotActions.add(removeAction);
-		
-		menuManager.add(undoAction);
-		menuManager.add(redoAction);
-		menuManager.add(new Separator("edit"));
-		menuManager.add(copyAction);
-		menuManager.add(removeAction);
-		menuManager.add(new Separator("additions"));
-		ShowInShellAction revealAction = new ShowInShellAction(SnapshotCore.getRepository());
-		
-		snapshotActions.add(revealAction);
-		menuManager.add(revealAction);
-	}
+        CopyAction copyAction = new CopyAction(SnapshotCore.getRepository());
+        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.COPY.getId(), copyAction);
+        snapshotActions.add(copyAction);
 
-	@Override
-	public void dispose() {
-		SnapshotCore.getRepository().eAdapters().remove(refresher);
-		super.dispose();
-	}
+        RemoveSnapshotAction removeAction = new RemoveSnapshotAction(SnapshotCore.getRepository());
+        getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.DELETE.getId(), removeAction);
+        snapshotActions.add(removeAction);
 
-	protected void doOpen(SnapshotEntry snapshotEntry) {
-		try {
-			getViewSite().getPage().openEditor(new SnapshotEditorInput(snapshotEntry), SnapshotEditor.ID);
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		}
-	}
+        menuManager.add(undoAction);
+        menuManager.add(redoAction);
+        menuManager.add(new Separator("edit"));
+        menuManager.add(copyAction);
+        menuManager.add(removeAction);
+        menuManager.add(new Separator("additions"));
+        ShowInShellAction revealAction = new ShowInShellAction(SnapshotCore.getRepository());
 
-	@SuppressWarnings("unchecked")
-	private List<SnapshotEntry> getSelection() {
-		IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-		return new ArrayList<SnapshotEntry>(selection.toList());
-	}
+        snapshotActions.add(revealAction);
+        menuManager.add(revealAction);
+    }
 
-	public DeferredViewerUpdate<GalleryTreeViewer> getUpdate() {
-		if (update == null) {
-			update = new DeferredViewerUpdate<GalleryTreeViewer>(viewer) {
-				@Override
-				protected void update(GalleryTreeViewer viewer) {
-					viewer.refresh();
-					updateActions();
-				}
-			};
-		}
-		return update;
-	}
+    @Override
+    public void dispose() {
+        SnapshotCore.getRepository().eAdapters().remove(refresher);
+        super.dispose();
+    }
 
-	private void handleModelChange() {
-		getUpdate().schedule();
-	}
+    protected void doOpen(SnapshotEntry snapshotEntry) {
+        try {
+            getViewSite().getPage().openEditor(new SnapshotEditorInput(snapshotEntry), SnapshotEditor.ID);
+        } catch (PartInitException e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public void setFocus() {
-		viewer.getControl().setFocus();
-	}
+    @SuppressWarnings("unchecked")
+    private List<SnapshotEntry> getSelection() {
+        IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+        return new ArrayList<SnapshotEntry>(selection.toList());
+    }
 
-	private void updateActions() {
-		for (SnapshotAction eachAction : snapshotActions) {
-			eachAction.setSelection(getSelection());
-			eachAction.update();
-		}
-	}
+    public DeferredViewerUpdate<GalleryTreeViewer> getUpdate() {
+        if (update == null) {
+            update = new DeferredViewerUpdate<GalleryTreeViewer>(viewer) {
+                @Override
+                protected void update(GalleryTreeViewer viewer) {
+                    viewer.refresh();
+                    updateActions();
+                }
+            };
+        }
+        return update;
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
-		if (adapter == IPropertySheetPage.class) {
-			PropertySheetPage page = new PropertySheetPage();
-			page.setPropertySourceProvider(new AdapterFactoryContentProvider(new PdetoolsItemProviderAdapterFactory()));
-			return page;
-		}
-		return super.getAdapter(adapter);
-	}
+    private void handleModelChange() {
+        getUpdate().schedule();
+    }
+
+    @Override
+    public void setFocus() {
+        viewer.getControl().setFocus();
+    }
+
+    private void updateActions() {
+        for (SnapshotAction eachAction : snapshotActions) {
+            eachAction.setSelection(getSelection());
+            eachAction.update();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object getAdapter(@SuppressWarnings("rawtypes") Class adapter) {
+        if (adapter == IPropertySheetPage.class) {
+            PropertySheetPage page = new PropertySheetPage();
+            page.setPropertySourceProvider(new AdapterFactoryContentProvider(new PdetoolsItemProviderAdapterFactory()));
+            return page;
+        }
+        return super.getAdapter(adapter);
+    }
 }

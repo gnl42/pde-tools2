@@ -9,21 +9,20 @@ import org.eclipse.ui.dialogs.PropertyPage;
 import me.glindholm.pdetools2.clipboard.internal.OpenJavaElementFunction;
 import me.glindholm.pdetools2.clipboard.internal.OpenResourceFunction;
 import me.glindholm.pdetools2.model.pdetools.ClipboardEntry;
-import me.glindholm.pdetools2.clipboard.ClipEntryInformationGenerator;
 
 public class ClipEntryPropertyPage extends PropertyPage{
 
-	@Override
-	protected Control createContents(Composite parent) {
-		Browser browser = new Browser(parent, SWT.FLAT | SWT.BORDER);
-		
-		new OpenResourceFunction(browser);
-		new OpenJavaElementFunction(browser);
-		
-		ClipboardEntry entry = (ClipboardEntry) getElement().getAdapter(ClipboardEntry.class);
-		ClipEntryInformationGenerator generator = new ClipEntryInformationGenerator();
-		String content = generator.generate(entry).toString();
-		browser.setText(content);
-		return browser;
-	}
+    @Override
+    protected Control createContents(Composite parent) {
+        Browser browser = new Browser(parent, SWT.FLAT | SWT.BORDER);
+
+        new OpenResourceFunction(browser);
+        new OpenJavaElementFunction(browser);
+
+        ClipboardEntry entry = (ClipboardEntry) getElement().getAdapter(ClipboardEntry.class);
+        ClipEntryInformationGenerator generator = new ClipEntryInformationGenerator();
+        String content = generator.generate(entry).toString();
+        browser.setText(content);
+        return browser;
+    }
 }

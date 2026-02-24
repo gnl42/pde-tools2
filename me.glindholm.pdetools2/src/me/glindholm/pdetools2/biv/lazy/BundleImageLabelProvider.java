@@ -4,8 +4,6 @@ import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
 
-import me.glindholm.pdetools2.biv.lazy.BundleEntry;
-import me.glindholm.pdetools2.biv.lazy.URLImageEntry;
 import me.glindholm.pdetools2.shared.SharedImages;
 import net.jeeeyul.swtend.SWTExtensions;
 
@@ -28,127 +26,127 @@ import me.glindholm.pdetools2.shared.ImageLoadingQueue;
 import me.glindholm.pdetools2.shared.ThumbnailGenerator;
 
 public class BundleImageLabelProvider extends LabelProvider {
-	private ImageLoadingQueue<URLImageEntry> queue;
-	private ImageRegistry registry;
-	private HashSet<URLImageEntry> invalidURLs;
-	private ThumbnailGenerator thumbnailGenerator = new ThumbnailGenerator();
+    private ImageLoadingQueue<URLImageEntry> queue;
+    private ImageRegistry registry;
+    private HashSet<URLImageEntry> invalidURLs;
+    private ThumbnailGenerator thumbnailGenerator = new ThumbnailGenerator();
 
-	public BundleImageLabelProvider() {
-		invalidURLs = new HashSet<URLImageEntry>();
+    public BundleImageLabelProvider() {
+        invalidURLs = new HashSet<URLImageEntry>();
 
-		queue = new ImageLoadingQueue<URLImageEntry>();
-		queue.setImageLoader(new Function1<URLImageEntry, ImageData>() {
-			@Override
-			public ImageData apply(URLImageEntry p) {
-				@SuppressWarnings("deprecation")
-				ImageData imageData = ImageDescriptor.createFromURL(p.getUrl()).getImageData();
-				p.setWidth(imageData.width);
-				p.setHeight(imageData.height);
-				
-				Point imageSize = SWTExtensions.INSTANCE.getSize(imageData);
-				Point maxSize = new Point(32, 32);
-				if (!SWTExtensions.INSTANCE.contains(maxSize, imageSize)) {
-					Point bestSize = getBestSize(imageSize, maxSize);
-					return thumbnailGenerator.generate(imageData, bestSize.x, bestSize.y);
-				} else {
-					return imageData;
-				}
-			}
-		});
+        queue = new ImageLoadingQueue<URLImageEntry>();
+        queue.setImageLoader(new Function1<URLImageEntry, ImageData>() {
+            @Override
+            public ImageData apply(URLImageEntry p) {
+                @SuppressWarnings("deprecation")
+                ImageData imageData = ImageDescriptor.createFromURL(p.getUrl()).getImageData();
+                p.setWidth(imageData.width);
+                p.setHeight(imageData.height);
 
-		queue.setLoadHandler(new Procedure1<List<ImageLoadingEntry<URLImageEntry>>>() {
-			@Override
-			public void apply(List<ImageLoadingEntry<URLImageEntry>> p) {
-				handleLoad(p);
-			}
-		});
+                Point imageSize = SWTExtensions.INSTANCE.getSize(imageData);
+                Point maxSize = new Point(32, 32);
+                if (!SWTExtensions.INSTANCE.contains(maxSize, imageSize)) {
+                    Point bestSize = getBestSize(imageSize, maxSize);
+                    return thumbnailGenerator.generate(imageData, bestSize.x, bestSize.y);
+                } else {
+                    return imageData;
+                }
+            }
+        });
 
-		registry = new ImageRegistry();
-	}
+        queue.setLoadHandler(new Procedure1<List<ImageLoadingEntry<URLImageEntry>>>() {
+            @Override
+            public void apply(List<ImageLoadingEntry<URLImageEntry>> p) {
+                handleLoad(p);
+            }
+        });
 
-	private Point getBestSize(Point imageSize, Point maxSize) {
-		if (imageSize.x <= maxSize.x && imageSize.y <= maxSize.y) {
-			return imageSize;
-		}
-		return RendererHelper.getBestSize(imageSize.x, imageSize.y, maxSize.x, maxSize.y);
-	}
+        registry = new ImageRegistry();
+    }
 
-	@SuppressWarnings("deprecation")
-	protected void handleLoad(List<ImageLoadingEntry<URLImageEntry>> p) {
-		for (ImageLoadingEntry<URLImageEntry> each : p) {
-			try {
-				if (each.image != null) {
-					registry.put(each.key.toString(), ImageDescriptor.createFromImageData(each.image));
-				} else {
-					invalidURLs.add(each.key);
-				}
-			} catch (Exception e) {
+    private Point getBestSize(Point imageSize, Point maxSize) {
+        if (imageSize.x <= maxSize.x && imageSize.y <= maxSize.y) {
+            return imageSize;
+        }
+        return RendererHelper.getBestSize(imageSize.x, imageSize.y, maxSize.x, maxSize.y);
+    }
 
-			}
-		}
+    @SuppressWarnings("deprecation")
+    protected void handleLoad(List<ImageLoadingEntry<URLImageEntry>> p) {
+        for (ImageLoadingEntry<URLImageEntry> each : p) {
+            try {
+                if (each.image != null) {
+                    registry.put(each.key.toString(), ImageDescriptor.createFromImageData(each.image));
+                } else {
+                    invalidURLs.add(each.key);
+                }
+            } catch (Exception e) {
 
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				fireLabelProviderChanged(new LabelProviderChangedEvent(BundleImageLabelProvider.this));
-			}
-		});
+            }
+        }
 
-	}
+        Display.getDefault().asyncExec(new Runnable() {
+            @Override
+            public void run() {
+                fireLabelProviderChanged(new LabelProviderChangedEvent(BundleImageLabelProvider.this));
+            }
+        });
 
-	@Override
-	public void dispose() {
-		queue.cancel();
-		invalidURLs.clear();
-		registry.dispose();
-		super.dispose();
-	}
+    }
 
-	@Override
-	public Image getImage(Object element) {
-		if (element instanceof URLImageEntry) {
-			URLImageEntry imageURLEntry = (URLImageEntry) element;
+    @Override
+    public void dispose() {
+        queue.cancel();
+        invalidURLs.clear();
+        registry.dispose();
+        super.dispose();
+    }
 
-			if (invalidURLs.contains(imageURLEntry)) {
-				return SharedImages.getImage(SharedImages.INVAILD);
-			}
+    @Override
+    public Image getImage(Object element) {
+        if (element instanceof URLImageEntry) {
+            URLImageEntry imageURLEntry = (URLImageEntry) element;
 
-			Image result = registry.get(imageURLEntry.toString());
-			if (result == null) {
-				queue.add(imageURLEntry);
-				return SharedImages.getImage(SharedImages.REFRESH);
-			} else {
-				return result;
-			}
-		} else {
-			return null;
-		}
-	}
+            if (invalidURLs.contains(imageURLEntry)) {
+                return SharedImages.getImage(SharedImages.INVAILD);
+            }
 
-	@Override
-	public String getText(Object element) {
-		if (element instanceof BundleEntry) {
-			BundleEntry be = (BundleEntry) element;
-			String label = be.getBundle().getHeaders().get(Constants.BUNDLE_NAME);
-			if (be.getState() == BundleEntry.RESOLVING) {
-				label += " (Expanding)";
-			}
-			return label;
-		}
+            Image result = registry.get(imageURLEntry.toString());
+            if (result == null) {
+                queue.add(imageURLEntry);
+                return SharedImages.getImage(SharedImages.REFRESH);
+            } else {
+                return result;
+            }
+        } else {
+            return null;
+        }
+    }
 
-		else if (element instanceof URLImageEntry) {
-			URLImageEntry urlImageEntry = (URLImageEntry) element;
-			String result = new Path(urlImageEntry.getUrl().toString()).lastSegment();
+    @Override
+    public String getText(Object element) {
+        if (element instanceof BundleEntry) {
+            BundleEntry be = (BundleEntry) element;
+            String label = be.getBundle().getHeaders().get(Constants.BUNDLE_NAME);
+            if (be.getState() == BundleEntry.RESOLVING) {
+                label += " (Expanding)";
+            }
+            return label;
+        }
 
-			if (urlImageEntry.getWidth() >= 0 && urlImageEntry.getHeight() >= 0) {
-				result += MessageFormat.format(" - {0}x{1}", urlImageEntry.getWidth(), urlImageEntry.getHeight());
-			}
-			return result;
-		}
+        else if (element instanceof URLImageEntry) {
+            URLImageEntry urlImageEntry = (URLImageEntry) element;
+            String result = new Path(urlImageEntry.getUrl().toString()).lastSegment();
 
-		else {
-			return "Unknown";
-		}
-	}
+            if (urlImageEntry.getWidth() >= 0 && urlImageEntry.getHeight() >= 0) {
+                result += MessageFormat.format(" - {0}x{1}", urlImageEntry.getWidth(), urlImageEntry.getHeight());
+            }
+            return result;
+        }
+
+        else {
+            return "Unknown";
+        }
+    }
 
 }

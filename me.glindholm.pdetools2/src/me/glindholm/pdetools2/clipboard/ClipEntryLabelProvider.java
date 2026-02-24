@@ -1,7 +1,5 @@
 package me.glindholm.pdetools2.clipboard;
 
-import me.glindholm.pdetools2.clipboard.StyleAndText;
-import me.glindholm.pdetools2.clipboard.StyleAndTextFactory;
 import net.jeeeyul.swtend.SWTExtensions;
 
 import org.eclipse.core.resources.IFile;
@@ -29,236 +27,236 @@ import me.glindholm.pdetools2.model.pdetools.ClipboardEntry;
 import me.glindholm.pdetools2.shared.ElapsedTimeLabelProvider;
 
 public class ClipEntryLabelProvider extends OwnerDrawLabelProvider {
-	private SWTExtensions $ = SWTExtensions.INSTANCE;
-	private StyleAndTextFactory factory;
-	private TextLayout sharedLayout;
-	private ElapsedTimeLabelProvider elapsedTimeLabelProvider = new ElapsedTimeLabelProvider();
-	private int numberOfLineForRow = 5;
-	private ColumnViewer viewer;
-	private boolean colorizeTextOnSelection = false;
+    private SWTExtensions $ = SWTExtensions.INSTANCE;
+    private StyleAndTextFactory factory;
+    private TextLayout sharedLayout;
+    private ElapsedTimeLabelProvider elapsedTimeLabelProvider = new ElapsedTimeLabelProvider();
+    private int numberOfLineForRow = 5;
+    private ColumnViewer viewer;
+    private boolean colorizeTextOnSelection = false;
 
-	public ClipEntryLabelProvider(IColorProvider colorProvider) {
-		super();
-		factory = new StyleAndTextFactory(colorProvider);
-	}
+    public ClipEntryLabelProvider(IColorProvider colorProvider) {
+        super();
+        factory = new StyleAndTextFactory(colorProvider);
+    }
 
-	@Override
-	public void dispose() {
-		if (sharedLayout != null) {
-			sharedLayout.dispose();
-			sharedLayout = null;
-		}
-		super.dispose();
-	}
+    @Override
+    public void dispose() {
+        if (sharedLayout != null) {
+            sharedLayout.dispose();
+            sharedLayout = null;
+        }
+        super.dispose();
+    }
 
-	@SuppressWarnings("deprecation")
-	private void drawBadge(Event event, ClipboardEntry entry) {
-		Table table = (Table) event.widget;
-		TableItem item = (TableItem) event.item;
-		Rectangle itemBounds = $.newRectangle(event);
-		itemBounds.width = table.getClientArea().width;
+    @SuppressWarnings("deprecation")
+    private void drawBadge(Event event, ClipboardEntry entry) {
+        Table table = (Table) event.widget;
+        TableItem item = (TableItem) event.item;
+        Rectangle itemBounds = $.newRectangle(event);
+        itemBounds.width = table.getClientArea().width;
 
-		ImageDescriptor iconDescriptor = getImageDescriptor(entry);
+        ImageDescriptor iconDescriptor = getImageDescriptor(entry);
 
-		String text = elapsedTimeLabelProvider.getText(entry.getTakenTime());
-		if (entry.isActive()) {
-			text += " (Active)";
-		}
+        String text = elapsedTimeLabelProvider.getText(entry.getTakenTime());
+        if (entry.isActive()) {
+            text += " (Active)";
+        }
 
-		int r = 5;
+        int r = 5;
 
-		getSharedLayout().setText(text);
+        getSharedLayout().setText(text);
 
-		Rectangle textBounds = $.resize(getSharedLayout().getBounds(), r, 0);
-		if (iconDescriptor != null) {
-			textBounds.width += iconDescriptor.getImageData().width;
-		}
+        Rectangle textBounds = $.resize(getSharedLayout().getBounds(), r, 0);
+        if (iconDescriptor != null) {
+            textBounds.width += iconDescriptor.getImageData().width;
+        }
 
-		Point textOffset = new Point(itemBounds.x + itemBounds.width - textBounds.width, itemBounds.y
-				+ itemBounds.height - textBounds.height);
+        Point textOffset = new Point(itemBounds.x + itemBounds.width - textBounds.width, itemBounds.y
+                + itemBounds.height - textBounds.height);
 
-		Point boxOffset = $.getCopy(textOffset);
+        Point boxOffset = $.getCopy(textOffset);
 
-		$.translate(textOffset, -1, -1);
-		$.translate(boxOffset, 0, -1);
+        $.translate(textOffset, -1, -1);
+        $.translate(boxOffset, 0, -1);
 
-		if (iconDescriptor != null) {
-			$.translate(textOffset, 16, 0);
-		}
+        if (iconDescriptor != null) {
+            $.translate(textOffset, 16, 0);
+        }
 
-		Path path = new Path(table.getDisplay());
-		path.addArc(boxOffset.x - r, boxOffset.y - r, r * 2, r * 2, 90, 90);
-		path.lineTo(boxOffset.x - r, boxOffset.y + textBounds.height);
-		path.lineTo(boxOffset.x + textBounds.width, boxOffset.y + textBounds.height);
-		path.lineTo(boxOffset.x + textBounds.width, boxOffset.y - r);
-		path.lineTo(boxOffset.x, boxOffset.y - r);
+        Path path = new Path(table.getDisplay());
+        path.addArc(boxOffset.x - r, boxOffset.y - r, r * 2, r * 2, 90, 90);
+        path.lineTo(boxOffset.x - r, boxOffset.y + textBounds.height);
+        path.lineTo(boxOffset.x + textBounds.width, boxOffset.y + textBounds.height);
+        path.lineTo(boxOffset.x + textBounds.width, boxOffset.y - r);
+        path.lineTo(boxOffset.x, boxOffset.y - r);
 
-		// badge background
-		event.gc.setAlpha(255);
-		event.gc.setBackground(table.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
-		event.gc.fillPath(path);
+        // badge background
+        event.gc.setAlpha(255);
+        event.gc.setBackground(table.getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+        event.gc.fillPath(path);
 
-		// badge text
-		event.gc.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-		getSharedLayout().draw(event.gc, textOffset.x, textOffset.y - r / 2 + 1);
-		
-		event.gc.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		getSharedLayout().draw(event.gc, textOffset.x, textOffset.y - r / 2);
-		path.dispose();
+        // badge text
+        event.gc.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        getSharedLayout().draw(event.gc, textOffset.x, textOffset.y - r / 2 + 1);
 
-		// badge border
-		event.gc.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		event.gc.setAlpha(40);
+        event.gc.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        getSharedLayout().draw(event.gc, textOffset.x, textOffset.y - r / 2);
+        path.dispose();
 
-		$.translate(boxOffset, -1, -1);
-		path = new Path(table.getDisplay());
-		path.addArc(boxOffset.x - r, boxOffset.y - r, r * 2, r * 2, 90, 90);
-		path.lineTo(boxOffset.x - r, boxOffset.y + textBounds.height);
-		path.lineTo(boxOffset.x + textBounds.width, boxOffset.y + textBounds.height);
-		path.lineTo(boxOffset.x + textBounds.width, boxOffset.y - r);
-		path.lineTo(boxOffset.x, boxOffset.y - r);
-		event.gc.drawPath(path);
-		path.dispose();
+        // badge border
+        event.gc.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        event.gc.setAlpha(40);
 
-		// badge icon
-		if (iconDescriptor != null) {
-			event.gc.setAlpha(255);
-			Image image = iconDescriptor.createImage();
-			event.gc.drawImage(image, boxOffset.x - 2, boxOffset.y - r / 2 + 1);
-			image.dispose();
-		}
-	}
+        $.translate(boxOffset, -1, -1);
+        path = new Path(table.getDisplay());
+        path.addArc(boxOffset.x - r, boxOffset.y - r, r * 2, r * 2, 90, 90);
+        path.lineTo(boxOffset.x - r, boxOffset.y + textBounds.height);
+        path.lineTo(boxOffset.x + textBounds.width, boxOffset.y + textBounds.height);
+        path.lineTo(boxOffset.x + textBounds.width, boxOffset.y - r);
+        path.lineTo(boxOffset.x, boxOffset.y - r);
+        event.gc.drawPath(path);
+        path.dispose();
 
-	@Override
-	protected void erase(Event event, Object element) {
-		event.detail &= ~SWT.FOREGROUND;
-	}
+        // badge icon
+        if (iconDescriptor != null) {
+            event.gc.setAlpha(255);
+            Image image = iconDescriptor.createImage();
+            event.gc.drawImage(image, boxOffset.x - 2, boxOffset.y - r / 2 + 1);
+            image.dispose();
+        }
+    }
 
-	private ImageDescriptor getImageDescriptor(ClipboardEntry entry) {
-		IFile file = entry.getReleatedFile();
-		if (file == null) {
-			return getPartImage(entry.getPartId());
-		}
+    @Override
+    protected void erase(Event event, Object element) {
+        event.detail &= ~SWT.FOREGROUND;
+    }
 
-		try {
-			if (!file.isSynchronized(IResource.DEPTH_ONE)) {
-				file.refreshLocal(IResource.DEPTH_ONE, null);
-			}
-			if (file.exists() && file.getContentDescription() != null) {
-				IContentType contentType = file.getContentDescription().getContentType();
-				return PlatformUI.getWorkbench().getEditorRegistry().getImageDescriptor(file.getName(), contentType);
-			} else {
-				return PlatformUI.getWorkbench().getEditorRegistry().getImageDescriptor(file.getName());
-			}
+    private ImageDescriptor getImageDescriptor(ClipboardEntry entry) {
+        IFile file = entry.getReleatedFile();
+        if (file == null) {
+            return getPartImage(entry.getPartId());
+        }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+        try {
+            if (!file.isSynchronized(IResource.DEPTH_ONE)) {
+                file.refreshLocal(IResource.DEPTH_ONE, null);
+            }
+            if (file.exists() && file.getContentDescription() != null) {
+                IContentType contentType = file.getContentDescription().getContentType();
+                return PlatformUI.getWorkbench().getEditorRegistry().getImageDescriptor(file.getName(), contentType);
+            } else {
+                return PlatformUI.getWorkbench().getEditorRegistry().getImageDescriptor(file.getName());
+            }
 
-	public int getNumberOfLineForRow() {
-		return numberOfLineForRow;
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-	private ImageDescriptor getPartImage(String partId) {
-		if (partId == null) {
-			return null;
-		}
+    public int getNumberOfLineForRow() {
+        return numberOfLineForRow;
+    }
 
-		IEditorDescriptor editor = PlatformUI.getWorkbench().getEditorRegistry().findEditor(partId);
-		if (editor != null) {
-			return editor.getImageDescriptor();
-		}
+    private ImageDescriptor getPartImage(String partId) {
+        if (partId == null) {
+            return null;
+        }
 
-		IViewDescriptor view = PlatformUI.getWorkbench().getViewRegistry().find(partId);
-		if (view != null) {
-			return view.getImageDescriptor();
-		}
+        IEditorDescriptor editor = PlatformUI.getWorkbench().getEditorRegistry().findEditor(partId);
+        if (editor != null) {
+            return editor.getImageDescriptor();
+        }
 
-		return null;
-	}
+        IViewDescriptor view = PlatformUI.getWorkbench().getViewRegistry().find(partId);
+        if (view != null) {
+            return view.getImageDescriptor();
+        }
 
-	public TextLayout getSharedLayout() {
-		if (sharedLayout == null) {
-			sharedLayout = new TextLayout(getViewer().getControl().getDisplay());
-			sharedLayout.setFont(getViewer().getControl().getFont());
-			sharedLayout.setText(" ");
-			int spaceWidth = sharedLayout.getBounds().width;
-			sharedLayout.setTabs(new int[] { spaceWidth * 2 });
-			sharedLayout.setSpacing(0);
-		}
-		return sharedLayout;
-	}
+        return null;
+    }
 
-	public ColumnViewer getViewer() {
-		return viewer;
-	}
+    public TextLayout getSharedLayout() {
+        if (sharedLayout == null) {
+            sharedLayout = new TextLayout(getViewer().getControl().getDisplay());
+            sharedLayout.setFont(getViewer().getControl().getFont());
+            sharedLayout.setText(" ");
+            int spaceWidth = sharedLayout.getBounds().width;
+            sharedLayout.setTabs(new int[] { spaceWidth * 2 });
+            sharedLayout.setSpacing(0);
+        }
+        return sharedLayout;
+    }
 
-	@Override
-	protected void initialize(ColumnViewer viewer, ViewerColumn column) {
-		this.viewer = viewer;
-		super.initialize(viewer, column);
-	}
+    public ColumnViewer getViewer() {
+        return viewer;
+    }
 
-	public boolean isColorizeTextOnSelection() {
-		return colorizeTextOnSelection;
-	}
+    @Override
+    protected void initialize(ColumnViewer viewer, ViewerColumn column) {
+        this.viewer = viewer;
+        super.initialize(viewer, column);
+    }
 
-	@Override
-	protected void measure(Event event, Object element) {
-		Table table = (Table) event.widget;
+    public boolean isColorizeTextOnSelection() {
+        return colorizeTextOnSelection;
+    }
 
-		getSharedLayout().setFont(getViewer().getControl().getFont());
-		String evaluate = "";
-		for (int i = 0; i < numberOfLineForRow - 1; i++) {
-			evaluate += "\r\n";
-		}
-		getSharedLayout().setText(evaluate);
-		event.height = getSharedLayout().getBounds().height;
-		event.width = table.getClientArea().width;
-	}
+    @Override
+    protected void measure(Event event, Object element) {
+        Table table = (Table) event.widget;
 
-	@Override
-	protected void paint(Event event, Object element) {
-		TableItem item = (TableItem) event.item;
-		Table table = item.getParent();
-		table.setToolTipText("");
+        getSharedLayout().setFont(getViewer().getControl().getFont());
+        String evaluate = "";
+        for (int i = 0; i < numberOfLineForRow - 1; i++) {
+            evaluate += "\r\n";
+        }
+        getSharedLayout().setText(evaluate);
+        event.height = getSharedLayout().getBounds().height;
+        event.width = table.getClientArea().width;
+    }
 
-		Rectangle bounds = $.newRectangle(event);
-		bounds.width = table.getClientArea().width;
+    @Override
+    protected void paint(Event event, Object element) {
+        TableItem item = (TableItem) event.item;
+        Table table = item.getParent();
+        table.setToolTipText("");
 
-		ClipboardEntry entry = (ClipboardEntry) element;
-		getSharedLayout().setText(entry.getTextContent());
+        Rectangle bounds = $.newRectangle(event);
+        bounds.width = table.getClientArea().width;
 
-		boolean hasToStyle = entry.getRtfContent() != null
-				&& (colorizeTextOnSelection || (event.detail & SWT.SELECTED) == 0);
+        ClipboardEntry entry = (ClipboardEntry) element;
+        getSharedLayout().setText(entry.getTextContent());
 
-		if (hasToStyle) {
-			try {
-				StyleAndText data = factory.createFromRTFString(entry.getRtfContent());
-				getSharedLayout().setText(data.getText());
-				for (StyleRange each : data.getStyleRanges()) {
-					getSharedLayout().setStyle(each, each.start, each.start + each.length);
-				}
-			} catch (Exception ie) {
+        boolean hasToStyle = entry.getRtfContent() != null
+                && (colorizeTextOnSelection || (event.detail & SWT.SELECTED) == 0);
 
-			}
-		}
-		getSharedLayout().draw(event.gc, bounds.x, bounds.y);
+        if (hasToStyle) {
+            try {
+                StyleAndText data = factory.createFromRTFString(entry.getRtfContent());
+                getSharedLayout().setText(data.getText());
+                for (StyleRange each : data.getStyleRanges()) {
+                    getSharedLayout().setStyle(each, each.start, each.start + each.length);
+                }
+            } catch (Exception ie) {
 
-		event.gc.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		event.gc.setAlpha(40);
-		event.gc.drawLine(0, bounds.y + bounds.height - 1, item.getParent().getSize().x, bounds.y + bounds.height - 1);
+            }
+        }
+        getSharedLayout().draw(event.gc, bounds.x, bounds.y);
 
-		drawBadge(event, entry);
-	}
+        event.gc.setForeground(item.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        event.gc.setAlpha(40);
+        event.gc.drawLine(0, bounds.y + bounds.height - 1, item.getParent().getSize().x, bounds.y + bounds.height - 1);
 
-	public void setColorizeTextOnSelection(boolean colorizeTextOnSelection) {
-		this.colorizeTextOnSelection = colorizeTextOnSelection;
-	}
+        drawBadge(event, entry);
+    }
 
-	public void setNumberOfLineForRow(int numberOfLineForRow) {
-		this.numberOfLineForRow = numberOfLineForRow;
-	}
+    public void setColorizeTextOnSelection(boolean colorizeTextOnSelection) {
+        this.colorizeTextOnSelection = colorizeTextOnSelection;
+    }
+
+    public void setNumberOfLineForRow(int numberOfLineForRow) {
+        this.numberOfLineForRow = numberOfLineForRow;
+    }
 }
